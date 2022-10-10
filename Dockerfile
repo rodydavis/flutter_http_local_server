@@ -21,9 +21,12 @@ RUN flutter pub get
 
 COPY . .
 
+ENV PORT 8080
+ENV HOST 0.0.0.0
+
 # RUN flutter pub get
 RUN flutter pub get --offline
-RUN dart compile exe bin/server.dart -o bin/server
+RUN dart compile exe bin/server.dart -o bin/server -D HOST=$HOST -D PORT=$PORT
 
 # FROM scratch
 # COPY --from=build /runtime/ /
@@ -32,4 +35,5 @@ RUN dart compile exe bin/server.dart -o bin/server
 # COPY --from=build /app/public/ /public
 
 EXPOSE 8080
+
 CMD ["/app/bin/server"]

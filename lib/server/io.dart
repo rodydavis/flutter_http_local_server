@@ -6,14 +6,26 @@ import 'impl.dart' as impl;
 class Server extends impl.Server {
   late HttpServer _server;
   StreamSubscription<HttpRequest>? _subscription;
-  final _port = 8080;
-  final _host = InternetAddress.loopbackIPv4.address;
+  late int _port;
+  late String _host;
   late final Directory _cache;
 
-  Server({required super.cacheDir});
+  Server({required super.cacheDir}) {
+    const envHost = String.fromEnvironment('HOST');
+    const envPort = int.fromEnvironment('PORT');
+    if (envHost.isNotEmpty && envPort != 0) {
+      _host = envHost;
+      _port = envPort;
+      url = Uri.parse('http://$_host:$_port');
+    } else {
+      _host = InternetAddress.loopbackIPv4.address;
+      _port = 8080;
+      url = Uri.parse('http://$_host:$_port');
+    }
+  }
 
   @override
-  Uri get url => Uri.parse('http://$_host:$_port');
+  late Uri url;
 
   late final Map<String, Function(HttpRequest)> _handlers = {
     '/': (req) {
@@ -93,6 +105,7 @@ class Server extends impl.Server {
   @override
   Future<void> start() async {
     _server = await HttpServer.bind(_host, _port);
+    // _server.autoCompress = true;
     _cache = Directory(await cacheDir);
     if (!_cache.existsSync()) _cache.createSync(recursive: true);
     _subscription = _server.listen(_handle);
