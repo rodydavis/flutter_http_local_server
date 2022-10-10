@@ -6,7 +6,7 @@ import 'impl.dart' as impl;
 class Server extends impl.Server {
   late HttpServer _server;
   StreamSubscription<HttpRequest>? _subscription;
-  final _port = 8000;
+  final _port = 8080;
   final _host = InternetAddress.loopbackIPv4.address;
   late final Directory _cache;
 

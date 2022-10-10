@@ -18,6 +18,6 @@ class Server extends impl.Server {
   @override
   Uri get url => Uri.parse(kReleaseMode
       // TODO: URL should be Cloud Run URL when deployed
-      ? 'http://127.0.0.1:8000'
-      : 'http://127.0.0.1:8000');
+      ? 'https://flutter-http-local-server-tuugyq7kta-uc.a.run.app'
+      : 'http://127.0.0.1:8080');
 }
