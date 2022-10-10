@@ -1,29 +1,35 @@
-# Example: https://github.com/dart-lang/samples/tree/master/server
+# FROM dart:beta AS build
+FROM ubuntu:18.04
 
-# Official Dart image: https://hub.docker.com/_/dart
-# Specify the Dart SDK base image version using dart:<version> (ex: dart:2.12)
-FROM dart:beta AS build
+RUN apt update && apt install -y curl git unzip xz-utils zip libglu1-mesa openjdk-8-jdk wget
 
-# Resolve app dependencies.
+# RUN useradd -ms /bin/bash developer
+# USER developer
 WORKDIR /app
-COPY pubspec.* ./
-RUN dart pub get
 
-# Copy app source code and AOT compile it.
+RUN git clone https://github.com/flutter/flutter.git
+ENV PATH "$PATH:/app/flutter/bin"
+ENV PATH "$PATH:/app/flutter/bin/cache/dart-sdk/bin"
+
+RUN flutter channel master
+RUN flutter upgrade
+RUN flutter doctor
+
+# WORKDIR /app
+COPY pubspec.* ./
+RUN flutter pub get
+
 COPY . .
-# Ensure packages are still up-to-date if anything has changed
-RUN dart pub get --offline
+
+# RUN flutter pub get
+RUN flutter pub get --offline
 RUN dart compile exe bin/server.dart -o bin/server
 
-# Build minimal serving image from AOT-compiled `/server` and required system
-# libraries and configuration files stored in `/runtime/` from the build stage.
-FROM scratch
-COPY --from=build /runtime/ /
-COPY --from=build /app/bin/server /app/bin/
+# FROM scratch
+# COPY --from=build /runtime/ /
+# COPY --from=build /app/bin/server /app/bin/
 
-# Include files in the /public directory to enable static asset handling
-COPY --from=build /app/public/ /public
+# COPY --from=build /app/public/ /public
 
-# Start server.
 EXPOSE 8080
 CMD ["/app/bin/server"]
