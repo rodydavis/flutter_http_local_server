@@ -10,6 +10,9 @@ class Server extends impl.Server {
   late String _host;
   late final Directory _cache;
 
+  @override
+  late Uri url;
+
   Server({required super.cacheDir}) {
     const envHost = String.fromEnvironment('HOST');
     const envPort = int.fromEnvironment('PORT');
@@ -23,9 +26,6 @@ class Server extends impl.Server {
       url = Uri.parse('http://$_host:$_port');
     }
   }
-
-  @override
-  late Uri url;
 
   late final Map<String, Function(HttpRequest)> _handlers = {
     '/': (req) {
